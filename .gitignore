@@ -1,8 +1,11 @@
+CenterNet/data/*
+CenterNet/images/*.jpg
 legacy/*
 .DS_Store
 debug/*
 *.DS_Store
 *.json
+*.png
 *.mat
 src/.vscode/*
 preds/*
