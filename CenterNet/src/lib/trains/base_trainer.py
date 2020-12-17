@@ -117,3 +117,4 @@ class BaseTrainer(object):
 
   def train(self, epoch, data_loader):
     return self.run_epoch('train', epoch, data_loader)
+

@@ -53,7 +53,6 @@ def demo(opt):
         time_str = time_str + '{} {:.3f}s |'.format(stat, ret[stat])
       print(time_str)
 if __name__ == '__main__':
+  # ctdet --demo ../data/coco/sds --load_model ../models/ctdet_coco_dla_2x.pth
   opt = opts().init()
-  # python demo.py ctdet --demo /home/jianglin/workspace/sk/education/CenterNet/data/coco/demo --load_model ../models/ctdet_coco_dla_2x.pth
-
   demo(opt)
