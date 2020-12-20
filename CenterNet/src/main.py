@@ -14,6 +14,9 @@ from models.data_parallel import DataParallel
 from logger import Logger
 from datasets.dataset_factory import get_dataset
 from trains.train_factory import train_factory
+from types import MethodType
+
+#from torchviz import make_dot
 
 
 def main(opt):
@@ -30,6 +33,32 @@ def main(opt):
   
   print('Creating model...')
   model = create_model(opt.arch, opt.heads, opt.head_conv)
+
+#   def forward(self, x):
+# #      x = self.base(x)
+#       x = self.dla_up(x[self.first_level:])
+#       ret = []
+#       for head in self.heads:
+#           ret.append(self.__getattr__(head)(x))
+#       return ret
+#
+#   model.forward = MethodType(forward, model)
+
+  tmp_image = torch.randn(1, 3, 512, 512)
+  torch.onnx.export(model, tmp_image, "majianglin.onnx")
+
+  quit(0)
+
+ # make_dot(model(tmp_image), params=dict(model.named_parameters()))
+
+  # from torch.utils.tensorboard import SummaryWriter
+  # tb = SummaryWriter()
+  # tmp_image = torch.randn(1, 3, 512, 512)
+  # tb.add_graph(model, tmp_image)
+  # tb.close()
+
+
+
   optimizer = torch.optim.Adam(model.parameters(), opt.lr)
   start_epoch = 0
   if opt.load_model != '':
