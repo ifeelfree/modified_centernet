@@ -2,6 +2,8 @@ my_output
 runs
 CenterNet/data/*
 CenterNet/images/*.jpg
+CenterNet/src/runs/*
+my_output
 legacy/*
 .DS_Store
 debug/*
