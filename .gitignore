@@ -1,3 +1,5 @@
+my_output
+runs
 CenterNet/data/*
 CenterNet/images/*.jpg
 legacy/*
