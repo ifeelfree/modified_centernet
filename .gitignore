@@ -1,3 +1,5 @@
+mmdetection
+TensorRT-CenterNet
 my_output
 runs
 CenterNet/data/*

@@ -34,6 +34,14 @@ def main(opt):
   print('Creating model...')
   model = create_model(opt.arch, opt.heads, opt.head_conv)
 
+  from my_lib.path.path_manager import OutputPathManager
+  path_manger = OutputPathManager()
+  pdf_file_name = path_manger.create_output_file("model_architecture", "model.pdf")
+  from my_lib.visualization.model_vis import draw_nn_model
+  draw_nn_model(model, pdf_file_name, (1, 3, 512, 512))
+
+
+  quit(0)
 #   def forward(self, x):
 # #      x = self.base(x)
 #       x = self.dla_up(x[self.first_level:])
@@ -44,10 +52,10 @@ def main(opt):
 #
 #   model.forward = MethodType(forward, model)
 
-  tmp_image = torch.randn(1, 3, 512, 512)
-  torch.onnx.export(model, tmp_image, "majianglin.onnx")
-
-  quit(0)
+  # tmp_image = torch.randn(1, 3, 512, 512)
+  # torch.onnx.export(model, tmp_image, "majianglin.onnx")
+  #
+  # quit(0)
 
  # make_dot(model(tmp_image), params=dict(model.named_parameters()))
 

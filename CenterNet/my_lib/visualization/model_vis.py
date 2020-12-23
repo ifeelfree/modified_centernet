@@ -1,7 +1,7 @@
 
 def draw_nn_model(model, pdf_file_name, input_shape=(1, 3, 244, 244)):
     """
-    This function is used to draw a pytorch model in a PDF file
+    This function is used to draw a pytorch model in a PDF and PNG file
 
     :params model a torch.nn.Module
     :params pdf_file_name the name of the architecture PDF file
@@ -12,7 +12,15 @@ def draw_nn_model(model, pdf_file_name, input_shape=(1, 3, 244, 244)):
     from torchviz import make_dot
     x = torch.randn(*input_shape)
     y = model(x)
-    make_dot(y).render(pdf_file_name, view=False)
+    show_tensor = None
+    if isinstance(y, torch.Tensor):
+        show_tensor = y
+    elif isinstance(y, list):
+        show_tensor = tuple(y[0].values())
+
+    make_dot(show_tensor).render(pdf_file_name, view=False)
+    pdf_file_name.rename(pdf_file_name.with_suffix('.png'))
+    make_dot(show_tensor).render(pdf_file_name, view=False, format="png")
 
 
 
