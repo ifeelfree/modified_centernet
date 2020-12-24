@@ -34,14 +34,62 @@ def main(opt):
   print('Creating model...')
   model = create_model(opt.arch, opt.heads, opt.head_conv)
 
-  from my_lib.path.path_manager import OutputPathManager
-  path_manger = OutputPathManager()
-  pdf_file_name = path_manger.create_output_file("model_architecture", "model.pdf")
-  from my_lib.visualization.model_vis import draw_nn_model
-  draw_nn_model(model, pdf_file_name, (1, 3, 512, 512))
+  # viewer the network architecture
+  if False:
+    from my_lib.path.path_manager import OutputPathManager
+    path_manger = OutputPathManager()
+    pdf_file_name = path_manger.create_output_file("model_architecture", "model.pdf")
+    from my_lib.visualization.model_vis import draw_nn_model
+    draw_nn_model(model, pdf_file_name, (1, 3, 512, 512))
 
+  # check the input/out
+  if False:
+      from my_lib.path.path_manager import OutputPathManager
+      path_manger = OutputPathManager()
+      txt_file_name = path_manger.create_output_file("model_architecture", "model.txt")
+      from my_lib.visualization.model_vis import describe_nn_model
+      describe_nn_model(model, txt_file_name, (3, 512, 512))
+
+  if True:
+    tmp_image = torch.randn(1, 3, 512, 512)
+    torch.onnx.export(model, tmp_image, "/home/jianglin/workspace/sk/education/modified_centernet/CenterNet/my_output/model_architecture/model.onnx")
+
+  # def forward(self, x):
+      #     x = self.base(x)
+      #     x = self.dla_up(x[self.first_level:])
+      #     ret = []
+      #     for head in self.heads:
+      #         ret.append(self.__getattr__(head)(x))
+      #     return ret
+
+      # net = get_pose_net(34, {'hm': 80, 'reg': 2, 'wh': 2})
+      # net.forward = MethodType(forward, net)
+      # load_model(net, '../models/ctdet_coco_dlav0_1x.pth')
+
+      # x = torch.randn(1, 3, 512, 512, requires_grad=True)
+      # torch_out = model(x)
+      #
+      # print("Run model")
+      # ort_session = onnxruntime.InferenceSession('../models/ctdet_coco_dlav0_1x.onnx')
+      # print("Load OK")
+      #
+      # def to_numpy(tensor):
+      #     return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
+      #
+      # ort_inputs = {ort_session.get_inputs()[0].name: to_numpy(x)}
+      # ort_outs = ort_session.run(None, ort_inputs)
+      #
+      # np.testing.assert_allclose(to_numpy(torch_out[0]), ort_outs[0], rtol=1e-03, atol=1e-05)
+      # print("Exported model has been tested with ONNXRuntime, and the result looks good!")
+      #
 
   quit(0)
+
+
+
+
+
+
 #   def forward(self, x):
 # #      x = self.base(x)
 #       x = self.dla_up(x[self.first_level:])
