@@ -1,6 +1,16 @@
 import pathlib
 import os
 
+
+def retrieve_project_path():
+    """
+    get the directory of the project CenterNet
+    """
+    path_dir = pathlib.Path(__file__).resolve().parent
+    lib_dir = path_dir.parent
+    proj_dir = lib_dir.parent
+    return proj_dir
+
 class OutputPathManager(object):
     """
     This class is used to manage path related to our experiments
@@ -9,9 +19,8 @@ class OutputPathManager(object):
         """
         initialize project path, output path
         """
-        path_dir = pathlib.Path(__file__).resolve().parent
-        lib_dir = path_dir.parent
-        proj_dir = lib_dir.parent
+
+        proj_dir = retrieve_project_path()
         output_dir = proj_dir / 'my_output'
         assert output_dir.exists()
         self.project_dir_ = proj_dir

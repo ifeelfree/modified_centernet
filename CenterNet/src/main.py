@@ -50,69 +50,9 @@ def main(opt):
       from my_lib.visualization.model_vis import describe_nn_model
       describe_nn_model(model, txt_file_name, (3, 512, 512))
 
-  if True:
+  if False:
     tmp_image = torch.randn(1, 3, 512, 512)
     torch.onnx.export(model, tmp_image, "/home/jianglin/workspace/sk/education/modified_centernet/CenterNet/my_output/model_architecture/model.onnx")
-
-  # def forward(self, x):
-      #     x = self.base(x)
-      #     x = self.dla_up(x[self.first_level:])
-      #     ret = []
-      #     for head in self.heads:
-      #         ret.append(self.__getattr__(head)(x))
-      #     return ret
-
-      # net = get_pose_net(34, {'hm': 80, 'reg': 2, 'wh': 2})
-      # net.forward = MethodType(forward, net)
-      # load_model(net, '../models/ctdet_coco_dlav0_1x.pth')
-
-      # x = torch.randn(1, 3, 512, 512, requires_grad=True)
-      # torch_out = model(x)
-      #
-      # print("Run model")
-      # ort_session = onnxruntime.InferenceSession('../models/ctdet_coco_dlav0_1x.onnx')
-      # print("Load OK")
-      #
-      # def to_numpy(tensor):
-      #     return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
-      #
-      # ort_inputs = {ort_session.get_inputs()[0].name: to_numpy(x)}
-      # ort_outs = ort_session.run(None, ort_inputs)
-      #
-      # np.testing.assert_allclose(to_numpy(torch_out[0]), ort_outs[0], rtol=1e-03, atol=1e-05)
-      # print("Exported model has been tested with ONNXRuntime, and the result looks good!")
-      #
-
-  quit(0)
-
-
-
-
-
-
-#   def forward(self, x):
-# #      x = self.base(x)
-#       x = self.dla_up(x[self.first_level:])
-#       ret = []
-#       for head in self.heads:
-#           ret.append(self.__getattr__(head)(x))
-#       return ret
-#
-#   model.forward = MethodType(forward, model)
-
-  # tmp_image = torch.randn(1, 3, 512, 512)
-  # torch.onnx.export(model, tmp_image, "majianglin.onnx")
-  #
-  # quit(0)
-
- # make_dot(model(tmp_image), params=dict(model.named_parameters()))
-
-  # from torch.utils.tensorboard import SummaryWriter
-  # tb = SummaryWriter()
-  # tmp_image = torch.randn(1, 3, 512, 512)
-  # tb.add_graph(model, tmp_image)
-  # tb.close()
-
 
 
   optimizer = torch.optim.Adam(model.parameters(), opt.lr)
