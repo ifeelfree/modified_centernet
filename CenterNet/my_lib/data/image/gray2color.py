@@ -14,7 +14,9 @@ class GrayToColor(object):
     """
     COLOR_MAP={
         'rainbow':cv2.COLORMAP_RAINBOW,
-    }
+        'hot':cv2.COLORMAP_HOT,
+    } # https://www.learnopencv.com/applycolormap-for-pseudocoloring-in-opencv-c-python/
+    # for color range
     def __init__(self, color_map_name=None):
         """
         intilization
@@ -23,7 +25,7 @@ class GrayToColor(object):
         """
         import matplotlib.pyplot as plt
         if color_map_name is None:
-            color_map_name = 'rainbow'
+            color_map_name = 'hot'
 
         self.color_map_name_ = color_map_name
 
@@ -33,10 +35,19 @@ class GrayToColor(object):
         apply psuducoloring on the given gray image(s)
         """
         color_img_list = []
-        color_map_mode = self.COLOR_MAP[self.color_map_name_]
+        if self.color_map_name_ == 'truecolor':
+            pass
+        else:
+            color_map_mode = self.COLOR_MAP[self.color_map_name_]
         for arg in args:
-            color_img = cv2.applyColorMap(arg, color_map_mode)
-            color_img = color_img[:, :, [2, 1, 0]]
+            from my_lib.visualization.image_vis import normalized_255
+            arg = normalized_255(arg)
+            if self.color_map_name_ == 'truecolor':
+                import numpy as np
+                color_img = np.dstack((arg, arg, arg))
+            else:
+                color_img = cv2.applyColorMap(arg, color_map_mode)
+                color_img = color_img[:, :, [2, 1, 0]]
             color_img_list.append(color_img)
 
 

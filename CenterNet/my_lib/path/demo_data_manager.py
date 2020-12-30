@@ -29,6 +29,7 @@ class DemoDataManager(object):
 
         import cv2
         img = cv2.imread(str(img_name))
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         return img
 
 
@@ -45,5 +46,6 @@ class DemoDataManager(object):
             return img_name
 
         import cv2
-        img = cv2.imread(str(img_name))
+        img = cv2.imread(str(img_name)) #BGR
+        img = img[:,:,::-1] #RGB
         return img

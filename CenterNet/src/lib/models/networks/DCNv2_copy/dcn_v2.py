@@ -385,7 +385,6 @@ class DCNPooling(DCNv2Pooling):
                 * mask
             )
         # only roi_align
-
         return dcn_v2_pooling(
             input,
             rois,
@@ -399,4 +398,3 @@ class DCNPooling(DCNv2Pooling):
             self.sample_per_part,
             self.trans_std,
         )
-

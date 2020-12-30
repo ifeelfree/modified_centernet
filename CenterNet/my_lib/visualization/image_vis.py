@@ -59,29 +59,16 @@ def normalized_255(img):
     img = np.uint8(img)
     return img
 
-
-
-def show_grey_image(img):
+import functools
+def single_image_decord(func):
     """
-    thif function is used to show the gray-scale image
-
+    This function defines the preprocessing
+    and postprocessing part of showing an image
     """
-    img = preprocessing(img)
-    fig, ax = plt.subplots(1, 1)
-    ax_img = ax.imshow(img)
-    if np.max(img)<=1: # psuducoloring is valid only when input is lower than 1
-        fig.colorbar(ax_img)
-    ax.set_axis_off()
-    plt.show()
-
-
-
-def show_color_image(img, **kwargs):
-    """
-    this function is used to show the image
-
-    :params img input image
-    :params kwargs
+    @functools.wraps(func)
+    def wrapper_view_image(*args, **kwargs):
+        """
+        :params kwargs
              kwargs['box']: [(left, bottom, width, height),
                              (left, bottom, width, height)]
              #
@@ -91,43 +78,111 @@ def show_color_image(img, **kwargs):
              #       |
              #       V
              #       V
+        """
+        try:
+            assert len(args) == 1
+            # preporcessing
+            img = preprocessing(args[0])
+
+            # visulization
+            ax = func(img, **kwargs)
+
+            # post-processing
+            if kwargs:
+                from matplotlib.collections import PatchCollection
+                from matplotlib.patches import Polygon
+                polygons = []
+                color = []
+                if 'box' in kwargs.keys():
+                    window_list = kwargs['box']
+                    for (bbox_x, bbox_y, bbox_w, bbox_h) in window_list:
+                        # generate box
+                        poly = [[bbox_x, bbox_y], [bbox_x, bbox_y + bbox_h], [bbox_x + bbox_w, bbox_y + bbox_h],
+                                [bbox_x + bbox_w, bbox_y]]
+                        np_poly = np.array(poly).reshape((4, 2))
+                        polygons.append(Polygon(np_poly))
+                        c = (np.random.random((1, 3)) * 0.6 + 0.4).tolist()[0]
+                        color.append(c)
+                if polygons:
+                    p = PatchCollection(polygons, facecolor=color, linewidths=0, alpha=0.4)
+                    ax.add_collection(p)
+                    p = PatchCollection(polygons, facecolor='none', edgecolors=color, linewidths=2)
+                    ax.add_collection(p)
+            ax.set_axis_off()
+            plt.show()
+        except Exception as error:
+            print(str(error))
+
+    return wrapper_view_image
+
+@single_image_decord
+def show_gray_image(img, **kwargs):
     """
+    thif function is used to show the gray-scale image
+    """
+    fig, ax = plt.subplots(1, 1)
+    ax.imshow(img, cmap='gray')
+    return ax
 
-    img = preprocessing(img)
-    # import matplotlib
-    # matplotlib.use("Qt4Agg")
 
+@single_image_decord
+def show_color_image(img, **kwargs):
+    """
+    this function is used to show the image
 
+    :params img input image
 
-
+    """
     fig, ax = plt.subplots(1,1)
     ax.imshow(img)
-
-    if kwargs:
-        from matplotlib.collections import PatchCollection
-        from matplotlib.patches import Polygon
-        polygons = []
-        color = []
-        if 'box' in kwargs.keys():
-            window_list = kwargs['box']
-            for (bbox_x, bbox_y, bbox_w, bbox_h) in window_list:
-                # generate box
-                poly = [[bbox_x, bbox_y], [bbox_x, bbox_y + bbox_h], [bbox_x + bbox_w, bbox_y + bbox_h],
-                        [bbox_x + bbox_w, bbox_y]]
-                np_poly = np.array(poly).reshape((4, 2))
-                polygons.append(Polygon(np_poly))
-                c = (np.random.random((1, 3)) * 0.6 + 0.4).tolist()[0]
-                color.append(c)
-        if polygons:
-            p = PatchCollection(polygons, facecolor=color, linewidths=0, alpha=0.4)
-            ax.add_collection(p)
-            p = PatchCollection(polygons, facecolor='none', edgecolors=color, linewidths=2)
-            ax.add_collection(p)
+    return ax
 
 
-    ax.set_axis_off()
-    plt.show()
+def show_single_image(img:np.array, **kwargs):
+    """
+    This function is used to show a single image
+    """
+    if 2==img.ndim:
+        show_gray_image(img, **kwargs)
+    elif 3==img.ndim:
+        show_color_image(img, **kwargs)
+    else:
+        assert 0
 
+
+
+def multiple_image_decord(func):
+    """
+    This function defines the preprocessing
+    and postprocessing part of showing an image
+    """
+    @functools.wraps(func)
+    def wrapper_multiple_image(*args, **kwargs):
+        """
+
+        """
+        try:
+            img_list = []
+            # preporcessing
+            for arg in args:
+                img = preprocessing(arg)
+                img_list.append(img)
+
+            # visulization
+            func(*img_list, **kwargs)
+
+            # post-processing
+            plt.show()
+        except Exception as error:
+            print(str(error))
+
+    return wrapper_multiple_image
+
+
+
+
+
+@multiple_image_decord
 def show_multiple_images(*args, **kwargs):
     """
     The purpose of this function is to show multiple images (color or gray)
@@ -137,14 +192,22 @@ def show_multiple_images(*args, **kwargs):
     plot_shape=(1, img_num)
 
     fig = plt.figure()
-
     for index, img in enumerate(args):
         ax = fig.add_subplot(plot_shape[0], plot_shape[1], index+1)
         ax.axis('off')
-        img = preprocessing(img)
         ax.imshow(img)
+    return fig
 
-    plt.show()
+
+
+
+if __name__ == "__main__":
+    from my_lib.path.demo_data_manager import DemoDataManager
+    from my_lib.visualization.image_vis import show_gray_image
+    demo_path_manger = DemoDataManager()
+    img_gray = demo_path_manger.gray_image()
+    img_color = demo_path_manger.color_image()
+    show_multiple_images(img_gray, img_color)
 
 
 

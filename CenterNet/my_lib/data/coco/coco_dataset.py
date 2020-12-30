@@ -103,6 +103,43 @@ class CocoDataset(torch.utils.data.Dataset):
         cat_list = [ t['name'] for t in cats_dict_arr]
         return cat_list
 
+    def dataset_summary(self):
+        """
+        This function is used to print all the information of the dataset
+        """
+        cat_info = self._category_info()
+        img_info = self._image_info()
+        return {**cat_info, **img_info}
+
+    def _category_info(self):
+        """
+        return the dataset's category information
+        """
+        cat_name_list = set()
+        super_cat_name_list = set()
+        for k, v in self.coco_.cats.items():
+            cat_name_list.add(v['name'])
+            super_cat_name_list.add(v['supercategory'])
+
+        return {
+            'class':list(cat_name_list),
+            'class_number':len(cat_name_list),
+            'superclass':list(super_cat_name_list),
+            'superclass_number': len(super_cat_name_list),
+        }
+
+    def _image_info(self):
+        """
+        return the image's information
+        """
+        return {'image_number': len(self.coco_.imgs)}
+
+
+
+
+
+
+
 
     def __getitem__(self, index):
         # Own coco file
@@ -145,9 +182,7 @@ class CocoDataset(torch.utils.data.Dataset):
         for i in range(num_objs):
             ann = coco_annotation[i]
             crowd_list.append(ann['iscrowd'])
-            # mask = self.coco_.annToMask(ann)
-            # from my_lib.visualization.image_vis import show_grey_image
-            # show_grey_image(mask)
+
 
 
 
@@ -180,4 +215,16 @@ class CocoDataset(torch.utils.data.Dataset):
 
     def __len__(self):
         return len(self.ids)
+
+
+if __name__ == "__main__":
+    from my_lib.data.coco.coco_dataset import CocoDataset, CocoPathManager
+    coco_path_manager = CocoPathManager()
+    data_set_obj = CocoDataset(coco_path_manager, "train")
+    print(data_set_obj.dataset_summary())
+
+
+
+
+
 

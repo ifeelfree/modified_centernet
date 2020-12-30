@@ -54,5 +54,6 @@ def demo(opt):
       print(time_str)
 if __name__ == '__main__':
   # ctdet --demo ../data/coco/sds --load_model ../models/ctdet_coco_dla_2x.pth
+  # ctdet --demo ../data/coco/sds --load_model ../models/ctdet_coco_resdcn18.pth
   opt = opts().init()
   demo(opt)
