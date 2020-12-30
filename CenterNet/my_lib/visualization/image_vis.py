@@ -121,7 +121,15 @@ def show_gray_image(img, **kwargs):
     thif function is used to show the gray-scale image
     """
     fig, ax = plt.subplots(1, 1)
-    ax.imshow(img, cmap='gray')
+    cmap_color = 'gray'
+    if kwargs.get('cmap') is None:
+        pass
+    else:
+        cmap_color = kwargs['cmap']
+    im = ax.imshow(img, cmap=cmap_color)
+    if cmap_color != 'gray':
+        fig.colorbar(im)
+
     return ax
 
 

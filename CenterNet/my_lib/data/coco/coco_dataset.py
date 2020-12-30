@@ -5,6 +5,7 @@ import torchvision
 import cv2
 from PIL import Image
 from pycocotools.coco import COCO
+import numpy as np
 
 class CocoPathManager(object):
     """
@@ -135,10 +136,23 @@ class CocoDataset(torch.utils.data.Dataset):
         return {'image_number': len(self.coco_.imgs)}
 
 
-
-
-
-
+    def get_segmentation_mask(self, index, b_instance=False):
+        """
+        this function is used to get the segmentation mask
+        """
+        img_id = self.ids_[index]
+        ann_ids =self.coco_.getAnnIds(imgIds=img_id)
+        img_dict = self.coco_.imgs[img_id]
+        img_height, img_width = img_dict['height'], img_dict['width']
+        coco_annotation = self.coco_.loadAnns(ann_ids)
+        mask = np.zeros((img_height, img_width), np.uint8)
+        for index, ann in enumerate(coco_annotation):
+            cat_id = int(ann['category_id'])
+            if b_instance is False:
+                mask = np.maximum(self.coco_.annToMask(ann)*cat_id, mask)
+            else:
+                mask = np.maximum(self.coco_.annToMask(ann)*(index+1), mask)
+        return mask
 
 
     def __getitem__(self, index):
@@ -219,9 +233,13 @@ class CocoDataset(torch.utils.data.Dataset):
 
 if __name__ == "__main__":
     from my_lib.data.coco.coco_dataset import CocoDataset, CocoPathManager
+    from my_lib.visualization.image_vis import show_single_image
+
     coco_path_manager = CocoPathManager()
     data_set_obj = CocoDataset(coco_path_manager, "train")
-    print(data_set_obj.dataset_summary())
+
+
+
 
 
 
