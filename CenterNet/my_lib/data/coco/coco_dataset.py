@@ -130,6 +130,7 @@ class CocoSampleAnnotationJSONGenerator(object):
         for img_id in selected_image_id_list:
             ann = self.coco_.imgToAnns[img_id]
             for a in ann:
+              #  del a['segmentation']
                 annotations.append(a)
         data_coco['annotations'] = annotations
 
@@ -306,8 +307,12 @@ if __name__ == "__main__":
     from my_lib.visualization.image_vis import show_single_image
 
     coco_path_manager = CocoPathManager()
+    sample_generator = CocoSampleAnnotationJSONGenerator(coco_path_manager, "val")
+    sample_generator.generate_sample_json_file(sample_number=18)
+    sample_generator = CocoSampleAnnotationJSONGenerator(coco_path_manager, "train")
+    sample_generator.generate_sample_json_file(sample_number=18)
 
-    data_set_obj = CocoDataset(coco_path_manager, "sampletrain")
+
       
 
 
