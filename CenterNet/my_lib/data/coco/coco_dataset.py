@@ -44,16 +44,18 @@ class CocoPathManager(object):
         obtain the annotation json file depending on the given
         task type and data seperation type
 
-        :params sep_type 'train', 'val'
+        :params sep_type 'train', 'val', 'sampletrain', 'sampleval',
         :params task_type 'detection'
+        :params b_exists the JSON file must exist
+
         :return the json file
         """
         assert task_type == "detection"
-        assert sep_type in ['train', 'val']
+        assert sep_type in ['train', 'val', 'sampletrain', 'sampleval']
 
         file_name = f"instances_{sep_type}2017.json"
         file_name = self.coco_path_/"annotations"/file_name
-        assert file_name.exists()
+
         return file_name
 
     def get_image_directory(self, sep_type):
@@ -63,13 +65,81 @@ class CocoPathManager(object):
         :param sep_type data seperation method
         :return the image directory 
         """
+        sep_type = sep_type.replace('sample', '')
         assert sep_type in ['train', 'val']
         dir_name = sep_type+'2017'
         dir_name = self.coco_path_/ dir_name
         assert dir_name.exists()
         return dir_name
+    
+class CocoSampleAnnotationJSONGenerator(object):
+    """
+    This class is used to generate an annotation JSON file for COCO samples
+    """
+    def __init__(self, path_manager: CocoPathManager, 
+                 sep_type: str):
+        """
+        configure the coco sample annotation json generator
+
+        :params sep_type 'train' or 'val'
+        """
+        annotation = path_manager.get_annotation_json(sep_type, 'detection')
+        self.coco_ = COCO(annotation)
+        self.output_json_file_ = path_manager.get_annotation_json('sample'+sep_type, 'detection')
 
 
+    def write_to_json(self, coco_dict, json_file):
+        """
+        write the dictionary to json file
+
+        :params coco_dict annotation dictionary
+        :params json_file json file
+        """
+        from my_lib.enhanced.path_enhenced import prepare_filepath_for_writing
+        prepare_filepath_for_writing(json_file)
+        with open(json_file, "w") as fid:
+            import json
+            json.dump(coco_dict, fid)
+
+
+
+
+    def generate_sample_json_file(self, sample_number=5,
+                                  json_file_name=None):
+        """
+        generate a smaple json file for coco data set
+        :params sample_number sample number in the new JSON file
+        :params json_file_name JSON file name
+        """
+        if json_file_name is None:
+            json_file_name = self.output_json_file_
+
+        print(json_file_name)
+
+        data_coco = {}
+        selected_image_id_list = list(sorted(self.coco_.imgs.keys()))[0:sample_number]
+
+        data_coco["info"] = self.coco_.dataset['info']
+        data_coco["licenses"] = self.coco_.dataset["licenses"]
+
+        # images
+        data_coco["images"] = self.coco_.loadImgs(selected_image_id_list)
+
+        # annotations
+        annotations = []
+        for img_id in selected_image_id_list:
+            ann = self.coco_.imgToAnns[img_id]
+            for a in ann:
+                annotations.append(a)
+        data_coco['annotations'] = annotations
+
+        # categoreis
+        cat_list = []
+        for k, v in self.coco_.cats.items():
+            cat_list.append(v)
+        data_coco["categories"] = cat_list
+
+        self.write_to_json(data_coco, json_file_name)
 
 
 
@@ -89,7 +159,7 @@ class CocoDataset(torch.utils.data.Dataset):
         """
         annotation = path_manager.get_annotation_json(sep_type, task_type)
         self.coco_ = COCO(annotation)
-        self.ids_ = list(sorted(self.coco_.imgs.keys()))
+        self.imageids_ = list(sorted(self.coco_.imgs.keys()))
         self.transform_ = transform
         self.image_dir_ = path_manager.get_image_directory(sep_type)
 
@@ -140,7 +210,7 @@ class CocoDataset(torch.utils.data.Dataset):
         """
         this function is used to get the segmentation mask
         """
-        img_id = self.ids_[index]
+        img_id = self.imageids_[index]
         ann_ids =self.coco_.getAnnIds(imgIds=img_id)
         img_dict = self.coco_.imgs[img_id]
         img_height, img_width = img_dict['height'], img_dict['width']
@@ -159,7 +229,7 @@ class CocoDataset(torch.utils.data.Dataset):
         # Own coco file
         coco = self.coco_
         # Image ID
-        img_id = self.ids_[index]
+        img_id = self.imageids_[index]
         # List: get annotation id from coco
         ann_ids = coco.getAnnIds(imgIds=img_id)
         # Dictionary: target coco_annotation file for an image
@@ -232,11 +302,13 @@ class CocoDataset(torch.utils.data.Dataset):
 
 
 if __name__ == "__main__":
-    from my_lib.data.coco.coco_dataset import CocoDataset, CocoPathManager
+    from my_lib.data.coco.coco_dataset import CocoDataset, CocoPathManager, CocoSampleAnnotationJSONGenerator
     from my_lib.visualization.image_vis import show_single_image
 
     coco_path_manager = CocoPathManager()
-    data_set_obj = CocoDataset(coco_path_manager, "train")
+
+    data_set_obj = CocoDataset(coco_path_manager, "sampletrain")
+      
 
 
 
